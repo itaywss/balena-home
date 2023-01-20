@@ -1,7 +1,7 @@
-name: "Unifi"
+name: "Home"
 type: "sw.application"
-version: 2022.7.16
-description: "Unifi Controller allows you to setup your Ubiquiti Unifi devices"
+version: 2023.1.20
+description: "A lot of stuff"
 post-provisioning: >-
   ## Usage instructions
   
@@ -12,13 +12,20 @@ assets:
   repository:
     type: "blob.asset"
     data:
-      url: "https://github.com/BluenationStudio/balena-unifi"
+      url: "https://github.com/itaywss/balena-home"
   logo:
     type: "blob.asset"
     data:
       url: "https://raw.githubusercontent.com/BluenationStudio/balena-unifi/master/ui.webp"
 data:
-  defaultDeviceType: "raspberrypi3-64"
+  applicationConfigVariables:
+    - BALENA_HOST_CONFIG_gpu_mem: 64
+  applicationEnvironmentVariables:
+    - INTERFACE: 'eth0'
+    - WEBPASSWORD: 'balena'
+    - PIHOLE_DNS_: '1.1.1.1;1.0.0.1'
+    - FBCP_DISPLAY: ""
+  defaultDeviceType: "raspberrypi4-64"
   supportedDeviceTypes:
     - "raspberrypi3-64"
     - "raspberrypi4-64"

@@ -1,5 +1,6 @@
-version: "2.1"
+version: "3.9"
 services:
+  # https://github.com/BluenationStudio/balena-unifi
   unifi-controller:
     image: lscr.io/linuxserver/unifi-controller:latest
     platform: linux/arm/v7
@@ -22,5 +23,79 @@ services:
       - 6789:6789 #optional
       - 5514:5514/udp #optional
     restart: unless-stopped
+
+  # https://github.com/balena-io-experimental/balena-homeassistant
+  homeassistant:
+    build: homeassistant
+    ports:
+      - 8123:8123
+    privileged: true
+    volumes:
+      - 'config:/config'
+    restart: always
+
+  mqtt:
+    build: mqtt
+    ports:
+      - "1883:1883"
+    restart: always
+    volumes:
+      - mosquitto:/mosquitto/data
+
+  hass-configurator:
+    image: "causticlab/hass-configurator-docker:latest"
+    restart: always
+    ports:
+      - "3218:3218"
+    volumes:
+      - 'config:/hass-config'
+    environment:
+      - HC_BASEPATH=/hass-co
+
+  # https://github.com/klutchell/balena-pihole
+  pihole:
+    build: pihole
+    cap_add:
+      - SYS_TTY_CONFIG
+      - NET_ADMIN
+    volumes:
+      - "pihole_config:/etc/pihole"
+      - "dnsmasq_config:/etc/dnsmasq.d"
+    dns:
+      - "127.0.0.1"
+      - "1.1.1.1"
+    network_mode: host
+    labels:
+      io.balena.features.dbus: "1"
+    devices:
+      - /dev/tty0
+      - /dev/tty1
+    tmpfs:
+      - /var/log/pihole
+
+  unbound:
+    build: unbound
+    ports:
+      - "5053:5053/tcp"
+      - "5053:5053/udp"
+
+  # https://github.com/balenablocks/fbcp
+  fbcp:
+    image: balenablocks/fbcp:1.0.0
+    privileged: true
+
+  # https://github.com/balenablocks/hostname
+  hostname:
+    build: hostname
+    restart: no
+    labels:
+      io.balena.features.supervisor-api: 1
+    environment:
+      SET_HOSTNAME: ploop-home
+
 volumes:
   unifi:
+  config:
+  mosquitto:
+  pihole_config:
+  dnsmasq_config:
